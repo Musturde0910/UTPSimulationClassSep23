@@ -1,0 +1,17 @@
+/home/nordin/SimulationModelingClass/Week3/bin/Debug/net7.0/Week3
+/home/nordin/SimulationModelingClass/Week3/bin/Debug/net7.0/Week3.deps.json
+/home/nordin/SimulationModelingClass/Week3/bin/Debug/net7.0/Week3.runtimeconfig.json
+/home/nordin/SimulationModelingClass/Week3/bin/Debug/net7.0/Week3.dll
+/home/nordin/SimulationModelingClass/Week3/bin/Debug/net7.0/Week3.pdb
+/home/nordin/SimulationModelingClass/Week3/obj/Debug/net7.0/Week3.csproj.AssemblyReference.cache
+/home/nordin/SimulationModelingClass/Week3/obj/Debug/net7.0/Week3.GeneratedMSBuildEditorConfig.editorconfig
+/home/nordin/SimulationModelingClass/Week3/obj/Debug/net7.0/Week3.AssemblyInfoInputs.cache
+/home/nordin/SimulationModelingClass/Week3/obj/Debug/net7.0/Week3.AssemblyInfo.cs
+/home/nordin/SimulationModelingClass/Week3/obj/Debug/net7.0/Week3.csproj.CoreCompileInputs.cache
+/home/nordin/SimulationModelingClass/Week3/obj/Debug/net7.0/Week3.dll
+/home/nordin/SimulationModelingClass/Week3/obj/Debug/net7.0/refint/Week3.dll
+/home/nordin/SimulationModelingClass/Week3/obj/Debug/net7.0/Week3.pdb
+/home/nordin/SimulationModelingClass/Week3/obj/Debug/net7.0/Week3.genruntimeconfig.cache
+/home/nordin/SimulationModelingClass/Week3/obj/Debug/net7.0/ref/Week3.dll
+/home/nordin/SimulationModelingClass/Week3/bin/Debug/net7.0/MathNet.Numerics.dll
+/home/nordin/SimulationModelingClass/Week3/obj/Debug/net7.0/Week3.csproj.CopyComplete

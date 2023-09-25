@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "NsFdpJJwR9HZRbEo/rYDRjRPGG/usjgZI7dF05u0iEcFzyaN3ccHrMiJfzPeHu/+Da1lFYGq2H8vAihLoR2bYw==",
+  "success": true,
+  "projectFilePath": "/home/nordin/SimulationModelingClass/Week4.1/Week4.1.csproj",
+  "expectedPackageFiles": [
+    "/home/nordin/.nuget/packages/mathnet.numerics/5.0.0/mathnet.numerics.5.0.0.nupkg.sha512"
+  ],
+  "logs": []
+}
