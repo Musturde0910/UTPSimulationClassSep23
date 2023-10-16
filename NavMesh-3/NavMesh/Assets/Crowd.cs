@@ -1,0 +1,75 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class Crowd : MonoBehaviour
+{
+    public Agent agentPrefab;
+    List<Agent> crowd = new List<Agent>();
+ 
+    public int startingCount = 240;
+    const float AgentDensity = 0.08f;
+
+    [Range(1f, 100f)]
+    public float driveFactor = 10f;
+
+    [Range(1f, 100f)]
+    public float maxSpeed = 5f;
+
+    [Range(1f, 10f)]
+    public float neighRadius = 1.5f;
+
+    [Range(0f, 1f)]
+    public float avoidanceRadiusMultiplier = 0.5f;
+
+    float squareMaxSpeed;
+    float squareNeighRadius;
+    float squareAvoidanceRadius;
+    public float SquareAvoidanceRadius { get { return squareAvoidanceRadius; }}
+
+    // Start is called before the first frame update
+    void Start()
+    {
+        GameObject ground = GameObject.Find("Ground");
+        Vector3 grounddim = ground.transform.localScale;
+        Vector3 groundpos = ground.transform.position;
+        float y = groundpos.y + grounddim.y/2;
+
+        while (crowd.Count < startingCount) {
+            var x = Random.Range(groundpos.x-grounddim.x, groundpos.x+grounddim.x);
+            var z = Random.Range(groundpos.z-grounddim.z, groundpos.z+grounddim.z);
+            Vector3 spawnPos = new Vector3(x, y, z);
+
+            Agent agent = Instantiate(agentPrefab, 
+                                    spawnPos,
+                                     Quaternion.identity);
+            agent.name = "Agent-"+crowd.Count;
+
+            if (agent.CollideSomething()) {
+                continue;
+            }
+            crowd.Add(agent);
+        }
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        foreach (Agent agent in crowd) {
+        }
+    }
+
+    List<Transform> GetNearbyObjects(Agent agent) {
+        List<Transform> context = new List<Transform>();
+        Collider2D[] contextCollider = Physics2D.OverlapCircleAll(agent.transform.position, neighRadius);
+        foreach (Collider2D c in contextCollider) {
+            if (c == agent.AgentCollider) 
+                continue;
+            
+            context.Add(c.transform);
+        }
+
+        return context;
+    }
+
+}
