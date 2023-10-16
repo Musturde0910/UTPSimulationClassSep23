@@ -7,7 +7,7 @@ public class Crowd : MonoBehaviour
     public Agent agentPrefab;
     List<Agent> crowd = new List<Agent>();
  
-    public int startingCount = 240;
+    public int startingCount = 10;
     const float AgentDensity = 0.08f;
 
     [Range(1f, 100f)]
@@ -36,8 +36,8 @@ public class Crowd : MonoBehaviour
         float y = groundpos.y + grounddim.y/2;
 
         while (crowd.Count < startingCount) {
-            var x = Random.Range(groundpos.x-grounddim.x, groundpos.x+grounddim.x);
-            var z = Random.Range(groundpos.z-grounddim.z, groundpos.z+grounddim.z);
+            var x = Random.Range(groundpos.x-grounddim.x/2, groundpos.x+grounddim.x/2);
+            var z = Random.Range(groundpos.z-grounddim.z/2, groundpos.z+grounddim.z/2);
             Vector3 spawnPos = new Vector3(x, y, z);
 
             Agent agent = Instantiate(agentPrefab, 
@@ -45,9 +45,9 @@ public class Crowd : MonoBehaviour
                                      Quaternion.identity);
             agent.name = "Agent-"+crowd.Count;
 
-            if (agent.CollideSomething()) {
-                continue;
-            }
+            //if (agent.CollideSomething()) {
+            //    continue;
+            //}
             crowd.Add(agent);
         }
     }
@@ -55,7 +55,15 @@ public class Crowd : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        foreach (Agent agent in crowd) {
+        if (Input.GetMouseButtonDown(0)) 
+        {
+            for (int i=0; i<3; i++) { // try 3 times
+                Agent agent = crowd[Random.Range(0, crowd.Count)];
+                if (agent.IsInQueue() == false) {
+                    agent.MoveToQueue();
+                    break;
+                }
+            }
         }
     }
 

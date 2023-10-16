@@ -8,6 +8,9 @@ public class Agent : MonoBehaviour
 
     public NavMeshAgent agent;
 
+    List<AgentQueue> queues = new List<AgentQueue>();
+    bool inQueue;
+
     Collider agentCollider;
     public Collider AgentCollider {get { return agentCollider; } }
 
@@ -15,6 +18,11 @@ public class Agent : MonoBehaviour
     void Start()
     {
          agentCollider = GetComponent<CapsuleCollider>();
+         var foundQ = GameObject.FindGameObjectsWithTag("Queue");
+         foreach (GameObject qObj in foundQ) {
+            queues.Add(qObj.GetComponent<AgentQueue>());
+            Debug.Log("Added a queue");
+         }      
     }
 
     public bool CollideSomething() {
@@ -29,11 +37,27 @@ public class Agent : MonoBehaviour
     void Update()
     {
        if (Input.GetMouseButtonDown(1)) {
+        if (inQueue == true)
+            return;
+
         Ray movePosition = Camera.main.ScreenPointToRay(Input.mousePosition);
         if (Physics.Raycast(movePosition, out var hitInfo)) {
             agent.SetDestination(hitInfo.point);            
         }
-
        } 
+    }
+
+    public bool IsInQueue() {
+        return inQueue;
+    }
+    public void MoveToQueue()
+    {
+            AgentQueue chosenQ = queues[Random.Range(0, queues.Count)];
+            chosenQ.Add(this);
+            inQueue = true;
+    }
+
+    public void SetDestination(Vector3 pos) {
+        agent.SetDestination(pos);
     }
 }
