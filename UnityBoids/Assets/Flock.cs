@@ -37,9 +37,16 @@ public class Flock : MonoBehaviour
         squareAvoidanceRadius = squareNeighRadius * avoidanceRadiusMultiplier * avoidanceRadiusMultiplier;
     
         for (int i=0; i<startingCount; i++) {
+            //Instantiate(objectToSpawn, transform.position, objectToSpawn.transform.rotation, parenttransform);
             FlockAgent agent = Instantiate(agentPrefab, 
+                    //Returns a random point inside or on a circle with radius 1.0
                     UnityEngine.Random.insideUnitCircle * startingCount * AgentDensity,
-                    Quaternion.Euler(Vector3.forward * UnityEngine.Random.Range(0f, 360f)), transform);
+
+                    // Quaternion Euler(float x, float y, float z);
+                    // Returns a rotation that rotates z degrees around the z axis, x degrees around the x axis, and y degrees around the y axis; applied in that order.
+                                    // Vector3(0, 0, 1).
+                    Quaternion.Euler(Vector3.forward * UnityEngine.Random.Range(0f, 360f)), 
+                    transform);
             agent.name = "Agent-"+i;
             flockAgents.Add(agent);
         }
@@ -53,12 +60,15 @@ public class Flock : MonoBehaviour
             agent.GetComponentInChildren<SpriteRenderer>().color = Color.Lerp(Color.white, Color.red, context.Count / 6.0f);
 
             Console.WriteLine("Behavior: "+behavior);
-
             Vector2 move = behavior.CalculateMove(agent, context, this);
 
             move *= driveFactor;
             if (move.sqrMagnitude > squareMaxSpeed) {
                 move = move.normalized * maxSpeed;
+            }
+
+            if (agent.NearObstacle(SquareAvoidanceRadius*5)) {
+                move = move * 0.001f;
             }
 
             agent.Move(move);
@@ -67,8 +77,12 @@ public class Flock : MonoBehaviour
 
     List<Transform> GetNearbyObjects(FlockAgent agent) {
         List<Transform> context = new List<Transform>();
+                                        // Get a list of all Colliders that fall within a circular area.
         Collider2D[] contextCollider = Physics2D.OverlapCircleAll(agent.transform.position, neighRadius);
         foreach (Collider2D c in contextCollider) {
+            if (c.gameObject.CompareTag("Obstacle") == true)
+                    continue;
+                    
             if (c == agent.AgentCollider) 
                 continue;
             
