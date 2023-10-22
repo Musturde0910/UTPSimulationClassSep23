@@ -13,6 +13,7 @@ public class Agent : MonoBehaviour
     public QueueList queueList;
 
     bool inQueue;
+    bool toQueue;
     bool followMouse;
     System.Random rnd = new System.Random();
 
@@ -44,6 +45,15 @@ public class Agent : MonoBehaviour
     {
         if (inQueue == true)
             return;
+
+        if (toQueue == true) {
+            if (navagent.remainingDistance <= navagent.stoppingDistance) {
+                toQueue = false;
+                inQueue = true;
+            }
+
+            return;
+        }
 
         if (followMouse == true) {
             if (navagent.remainingDistance <= navagent.stoppingDistance) {
@@ -98,14 +108,24 @@ public class Agent : MonoBehaviour
         return center;
     }
 
+    public bool MovingToQueue() {
+        return toQueue;
+    }
+
     public bool IsInQueue() {
         return inQueue;
     }
-    public void MoveToQueue()
+    public string MoveToQueue()
     {
         AgentQueue chosenQ = queueList.Get(rnd.Next(queueList.Count()));
         chosenQ.Add(this);
-        inQueue = true;
+        toQueue = true;
+        return chosenQ.name;
+    }
+
+    public void MoveFromQueue()
+    {
+        inQueue = false;
     }
 
     public void SetDestination(Vector3 pos) {
