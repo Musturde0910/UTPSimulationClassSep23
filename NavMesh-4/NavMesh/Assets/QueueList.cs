@@ -5,7 +5,9 @@ using UnityEngine;
 [CreateAssetMenu (menuName="Behavior/QueueList")]
 public class QueueList : ScriptableObject
 {
-    public List<AgentQueue> queues = new List<AgentQueue>();
+
+    [System.NonSerialized]
+    List<AgentQueue> queues = new List<AgentQueue>();
 
     public AgentQueue Get(int i) {
         return queues[i];

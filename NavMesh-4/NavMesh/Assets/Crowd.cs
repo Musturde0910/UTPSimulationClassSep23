@@ -18,8 +18,7 @@ public class Crowd : MonoBehaviour
     [Range(1f, 10f)]
     public float neighRadius = 1.5f;
 
-    static string[] possibleTags = {"Group-1", "Group-2"};
-
+    
     // Start is called before the first frame update
     void Start()
     {
@@ -36,9 +35,7 @@ public class Crowd : MonoBehaviour
             Agent agent = Instantiate(agentPrefab, 
                                     spawnPos,
                                      Quaternion.identity);
-            agent.name = "Agent-"+crowd.Count;
-            agent.tag = possibleTags[Random.Range(0, possibleTags.Length)];
-            
+            agent.name = "Agent-"+crowd.Count;            
             crowd.Add(agent);
         }
     }
