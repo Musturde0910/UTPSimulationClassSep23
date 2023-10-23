@@ -12,45 +12,45 @@ public class AgentQueue : MonoBehaviour
     Vector3 qdir;  // queue direction
     Vector3 qPos;
     Agent incomingAgent;
+    float queueSpacing = 1;
+  
 
     // Start is called before the first frame update
     void Start()
     {
         qdir = -transform.right; // the red vector
-        qPos = transform.position + qdir*(agentqueue.Count+1)*2;
+        qPos = transform.position + qdir*(agentqueue.Count+1)*queueSpacing;
         queueList.Add(this);
 
         Debug.Log("Queue created for "+gameObject.name+". With pos: "+qPos);
 
     }
 
-    public void Add(Agent agent) {
+    public bool Add(Agent agent) {
+        if (incomingAgent != null) {
+            return false;
+        }
         incomingAgent = agent;
+        qPos.y = agent.GetPos().y;
         agent.SetDestination(qPos);
-        qPos = transform.position + qdir*(agentqueue.Count+1)*2;        
+        queueSpacing = agent.GetRadius()*2f;
+        qPos += qdir*queueSpacing;
+        return true;        
     }
 
     public void Shift() {
         foreach (Agent agent in agentqueue) {
-            agent.transform.position -= qdir*2;
+            agent.transform.position -= qdir*queueSpacing;
         }
+        qPos -= qdir*queueSpacing; 
     }
 
     public Agent Pop() {
-        GameObject ground = GameObject.Find("Ground");
-        Vector3 grounddim = ground.transform.localScale;
-        Vector3 groundpos = ground.transform.position;
-        float y = groundpos.y + grounddim.y/2;
-
-        var x = Random.Range(groundpos.x-grounddim.x/2, groundpos.x+grounddim.x/2);
-        var z = Random.Range(groundpos.z-grounddim.z/2, groundpos.z+grounddim.z/2);
-        Vector3 newPos = new Vector3(x, y, z);
-
         Agent agent = agentqueue[0];
         agentqueue.RemoveAt(0); 
         agent.MoveFromQueue();
 
-        agent.SetDestination(newPos);
+        agent.SetRandomDestination();
         Shift();
         return agent;  
     }
@@ -66,6 +66,7 @@ public class AgentQueue : MonoBehaviour
             return;
 
         if (incomingAgent.IsInQueue()) {
+            incomingAgent.TurnOffNavMeshAgent(qPos);
             agentqueue.Add(incomingAgent);
             incomingAgent = null;
             Debug.Log("Queue for "+gameObject.name+" now has size "+agentqueue.Count+". Next pos: "+qPos);

@@ -153,7 +153,9 @@ public class Agent : MonoBehaviour
     public string MoveToQueue()
     {
         AgentQueue chosenQ = queueList.Get(rnd.Next(queueList.Count()));
-        chosenQ.Add(this);
+        bool success = chosenQ.Add(this);
+        if (!success)
+            return "None";
         currState = AgentState.ToQueue;
         return chosenQ.name;
     }
@@ -161,6 +163,7 @@ public class Agent : MonoBehaviour
     public void MoveFromQueue()
     {
         currState = AgentState.Wandering;
+        TurnOnNavMeshAgent();
     }
 
     public void SetDirection(Vector3 dir) {
@@ -227,6 +230,11 @@ public class Agent : MonoBehaviour
         return rdir; //*5;
     }
 
+
+    public void SetRandomDestination() {
+        navagent.SetDestination(transform.position + RandomNearPosition());
+    }
+
     bool RandomPoint(Vector3 center, float range, out Vector3 result) {
         for (int i = 0; i < 30; i++) {
             Vector3 randomPoint = center + UnityEngine.Random.insideUnitSphere * range;
@@ -240,4 +248,20 @@ public class Agent : MonoBehaviour
         return false;
         }
 
+    public Vector3 GetPos() {
+        return transform.position;
+    }
+
+    public float GetRadius() {
+        return ((CapsuleCollider)agentCollider).radius; 
+    }
+
+    public void TurnOffNavMeshAgent(Vector3 pos) {
+        navagent.updatePosition = false;        
+        transform.position = pos;
+    }
+
+    public void TurnOnNavMeshAgent() {
+        navagent.updatePosition = true;   
+    }
 }
