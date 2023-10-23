@@ -24,6 +24,7 @@ class Server : MonoBehaviour {
     DateTime prev;
     const int updateRate = 1;
     long time;
+    float lastUpdate;
 
     void Start() {
         serviceGaussian = new Normal(mean, std);
@@ -32,10 +33,10 @@ class Server : MonoBehaviour {
 
     void Update() {
         time++;
-        DateTime now = DateTime.Now;
-        if ((now - prev).Seconds > updateRate) {
+        lastUpdate += Time.deltaTime;
+        if (lastUpdate > updateRate) {
             update(customers, time);
-            prev = DateTime.Now;
+            lastUpdate = 0;
         }
     }
 
