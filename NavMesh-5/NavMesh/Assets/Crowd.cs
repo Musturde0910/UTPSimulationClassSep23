@@ -7,7 +7,7 @@ public class Crowd : MonoBehaviour
     public Agent agentPrefab;
     List<Agent> crowd = new List<Agent>();
  
-    public int startingCount = 10;
+    public int startingCount = 3;
 
     [Range(1f, 100f)]
     public float driveFactor = 10f;

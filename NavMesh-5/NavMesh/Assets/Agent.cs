@@ -21,6 +21,10 @@ public class Agent : MonoBehaviour
     DateTime mouseT;
     const float mouseTime = 5;
     AgentState currState;
+    int destinationStall;
+
+    const float neighRadius = 10;
+    GameObject[] stalls; // TODO: make this static/scriptable
 
     Collider agentCollider;
     public Collider AgentCollider {get { return agentCollider; } }
@@ -41,7 +45,10 @@ public class Agent : MonoBehaviour
             GetComponent<Renderer>().material.color = Color.blue;
         }
 
-        navagent.SetDestination(transform.position + RandomNearPosition());
+        // agent chooses to go to a random stall
+        stalls = GameObject.FindGameObjectsWithTag("Stall");
+        int stall = GetRandomStall();
+        GotoStall(stall);
         currState = AgentState.Wandering;
     }
 
@@ -79,40 +86,77 @@ public class Agent : MonoBehaviour
                 
                 Ray movePosition = Camera.main.ScreenPointToRay(Input.mousePosition);
                 if (Physics.Raycast(movePosition, out var hitInfo)) {
-                    navagent.SetDestination(hitInfo.point);
+                    SetDestination(hitInfo.point);
                     currState = AgentState.FollowingMouse; 
                     mouseT = DateTime.Now;       
                 }
             } 
         else {
-            if (ReachedDestination()) {
-                Debug.Log("Agent "+this.name +" is moving elsewhere");
-                Vector3 wander = RandomNearPosition();
-                Vector3 gangPos = CalcAttractionToGang();
-                Vector3 dir = wander + gangPos;  
-                SetDestination(transform.position + dir);
+            if (ReachedDestination(10)) {
+                if (this.name == "Agent-19")
+                    Debug.Log("Agent "+this.name +" is moving elsewhere");
+
+
+                bool joinQ = UnityEngine.Random.value < 0.5;
+                if (joinQ) {
+                    joinQ = MoveToQueue(destinationStall);
+                }
+
+                if (!joinQ ) {
+                    destinationStall = GetRandomStall();
+                    GotoStall(destinationStall);
+                    }
                 }
             }
 
     }
 
-    Vector3 CalcAttractionToGang() {
+    int GetStall() {
+        return destinationStall;
+    }
+
+    int GetRandomStall() {
+        
+        int index = UnityEngine.Random.Range(0, stalls.Length);        
+        return index;
+    }
+
+    void GotoStall(int index) {
+        SetDestination(RandomStallPos(index));
+    }
+
+    int CheckGangDestination() {
         List<Agent> agents = GetNearbyAgents(true);
         Vector3 center = Vector3.zero;
         if (agents.Count == 0) {
-            return transform.position;
+            return GetStall();
         }        
+        
+        int numStalls = stalls.Length;
+        int[] vote = new int[numStalls];
+
         foreach (Agent agent in agents) {
-            center += agent.transform.position;
+            if (agent.IsInQueue() || agent.MovingToQueue() || agent.MovingToMouse())
+                continue;
+            vote[agent.GetStall()] ++;
+         }
+
+        int max = 0;
+        int index = 0;
+        for (int i=0; i<numStalls; i++) {
+            if (vote[i] > max) {
+                max = vote[i];
+                index = i;
+            }
         }
-        center /= agents.Count;
-        Vector3 dir = center - transform.position;
-        return dir;
+
+        return index;
     }
+
 
     List<Agent> GetNearbyAgents(bool aliketype) {
         Collider[] hitColliders = new Collider[20];
-        float radius = 5;
+        float radius = neighRadius;
         int numColliders = Physics.OverlapSphereNonAlloc(transform.position, radius, hitColliders);
 
         List<Agent> context = new List<Agent>();
@@ -142,12 +186,18 @@ public class Agent : MonoBehaviour
         return currState == AgentState.InQueue;
     }
 
-    public string MoveToQueue(int qindex)
+    public bool MovingToMouse() {
+        return currState == AgentState.FollowingMouse;
+    }
+
+    public bool MoveToQueue(int qindex)
     {
         AgentQueue chosenQ = queueList.Get(qindex);
-        chosenQ.Add(this);
+        bool success = chosenQ.Add(this);
+        if (!success)
+            return false;        
         currState = AgentState.ToQueue;
-        return chosenQ.name;
+        return true;
     }
 
     public string MoveToQueue()
@@ -170,13 +220,6 @@ public class Agent : MonoBehaviour
         navagent.Move(dir);
     }
 
-    Vector3 GetDir() {
-        Vector3 pos = navagent.path.corners[0];
-        Vector3 dir = pos - transform.position;
-        return dir;
-    }
-
-
     public void SetDestination(Vector3 pos) {
         navagent.SetDestination(pos);
         motionT = DateTime.Now;
@@ -184,17 +227,6 @@ public class Agent : MonoBehaviour
 
     public float GetTimeInMotion() {
         return (DateTime.Now - motionT).Seconds;
-    }
-
-    public bool IsNotMoving() {
-        float speed = (transform.position - lastPosition).magnitude / Time.deltaTime;
-        Debug.Log("Agent "+this.name+" has speed "+speed);
-        lastPosition = transform.position;
-        if (speed < 1) {
-            Debug.Log(" should be stopping");
-        }
-
-        return speed < 1;
     }
 
     public bool ReachedDestination() {
@@ -214,6 +246,21 @@ public class Agent : MonoBehaviour
     }
 
 
+    public Vector3 RandomStallPos(int index) {
+        GameObject stall = stalls[index];
+        Vector3 stalldim = stall.transform.localScale;
+        Vector3 stallpos = stall.transform.position;
+        float y = transform.position.y;
+
+        float sign = UnityEngine.Random.value < 0.5 ? -1 : 1;
+
+        var x = stallpos.x + sign*UnityEngine.Random.Range(stalldim.x, 2*stalldim.x);
+        var z = stallpos.z + sign*UnityEngine.Random.Range(stalldim.z, 2*stalldim.z);
+        Vector3 randPos = new Vector3(x, y, z);
+
+        return randPos;
+    }
+
     public Vector3 RandomNearPosition() {
 
         GameObject ground = GameObject.Find("Ground");
@@ -232,7 +279,7 @@ public class Agent : MonoBehaviour
 
 
     public void SetRandomDestination() {
-        navagent.SetDestination(transform.position + RandomNearPosition());
+        SetDestination(transform.position + RandomNearPosition());
     }
 
     bool RandomPoint(Vector3 center, float range, out Vector3 result) {
